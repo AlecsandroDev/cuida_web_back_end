@@ -1,0 +1,196 @@
+TERMOS DE USO E POLÍTICA DE PRIVACIDADE
+Portal do Cidadão - Secretaria de Saúde de Marília/SP
+
+Última atualização: 30 de outubro de 2025
+
+=============================================================================
+1. ACEITAÇÃO DOS TERMOS
+=============================================================================
+
+Ao acessar e utilizar o Portal do Cidadão da Secretaria Municipal de Saúde de Marília, você concorda com os presentes Termos de Uso e Política de Privacidade. Se você não concorda com estes termos, não utilize este portal.
+
+=============================================================================
+2. OBJETIVO DO PORTAL
+=============================================================================
+
+O Portal do Cidadão é uma plataforma digital criada pela Secretaria Municipal de Saúde de Marília com os seguintes objetivos:
+
+- Facilitar o acesso dos cidadãos aos serviços de saúde pública
+- Permitir o agendamento de consultas e exames
+- Disponibilizar informações sobre unidades de saúde
+- Consultar histórico médico e resultados de exames
+- Acessar orientações e campanhas de saúde pública
+
+=============================================================================
+3. CADASTRO E RESPONSABILIDADES DO USUÁRIO
+=============================================================================
+
+3.1. Para utilizar o portal, o usuário deve:
+   - Fornecer informações verdadeiras, completas e atualizadas
+   - Manter a confidencialidade de sua senha de acesso
+   - Notificar imediatamente sobre qualquer uso não autorizado de sua conta
+   - Ser responsável por todas as atividades realizadas em sua conta
+
+3.2. O usuário compromete-se a:
+   - Utilizar o portal apenas para fins legítimos
+   - Não compartilhar suas credenciais de acesso
+   - Não tentar acessar áreas restritas do sistema
+   - Não interferir no funcionamento adequado do portal
+
+=============================================================================
+4. COLETA E USO DE DADOS PESSOAIS
+=============================================================================
+
+4.1. Dados Coletados:
+   - Dados de identificação: nome completo, CPF, RG, data de nascimento
+   - Dados de contato: endereço, telefone, e-mail
+   - Dados de saúde: carteirinha SUS, tipo sanguíneo, alergias, diagnósticos
+   - Dados de acesso: histórico de navegação no portal
+
+4.2. Finalidade do Tratamento:
+   - Prestação de serviços de saúde pública
+   - Agendamento e gerenciamento de consultas e exames
+   - Comunicação sobre campanhas de saúde
+   - Melhoria dos serviços prestados
+   - Cumprimento de obrigações legais e regulatórias
+
+4.3. Base Legal:
+   O tratamento de dados é realizado com base na Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018) e fundamentado no exercício regular de direito e cumprimento de obrigação legal pela administração pública.
+
+=============================================================================
+5. COMPARTILHAMENTO DE DADOS
+=============================================================================
+
+5.1. Seus dados podem ser compartilhados com:
+   - Profissionais de saúde autorizados envolvidos no seu atendimento
+   - Outros órgãos da administração pública municipal, quando necessário
+   - Autoridades governamentais, mediante requisição legal
+   - Laboratórios e clínicas conveniadas ao SUS
+
+5.2. A Secretaria de Saúde não vende, aluga ou comercializa dados pessoais dos usuários.
+
+=============================================================================
+6. SEGURANÇA DOS DADOS
+=============================================================================
+
+6.1. Implementamos medidas técnicas e organizacionais para proteger seus dados:
+   - Criptografia de dados sensíveis
+   - Controles de acesso rigorosos
+   - Monitoramento de segurança constante
+   - Backup regular de informações
+   - Treinamento de servidores sobre proteção de dados
+
+6.2. Em caso de incidente de segurança que possa acarretar risco aos seus direitos, você será notificado conforme previsto na LGPD.
+
+=============================================================================
+7. DIREITOS DO USUÁRIO
+=============================================================================
+
+Você tem direito a:
+
+7.1. Confirmação da existência de tratamento de seus dados
+7.2. Acesso aos seus dados pessoais
+7.3. Correção de dados incompletos, inexatos ou desatualizados
+7.4. Anonimização, bloqueio ou eliminação de dados desnecessários
+7.5. Portabilidade dos dados
+7.6. Informação sobre o compartilhamento de dados
+7.7. Revogação do consentimento (quando aplicável)
+
+Para exercer esses direitos, entre em contato através dos canais oficiais da Secretaria de Saúde.
+
+=============================================================================
+8. RETENÇÃO DE DADOS
+=============================================================================
+
+8.1. Os dados pessoais serão mantidos pelo período necessário para:
+   - Prestação dos serviços de saúde
+   - Cumprimento de obrigações legais (prontuários médicos devem ser mantidos por 20 anos)
+   - Exercício regular de direitos
+
+8.2. Após o período de retenção, os dados serão eliminados de forma segura.
+
+=============================================================================
+9. COOKIES E TECNOLOGIAS SIMILARES
+=============================================================================
+
+9.1. O portal utiliza cookies para:
+   - Manter sua sessão ativa
+   - Melhorar a experiência de navegação
+   - Coletar estatísticas de uso do portal
+
+9.2. Você pode configurar seu navegador para recusar cookies, mas isso pode afetar a funcionalidade do portal.
+
+=============================================================================
+10. RESPONSABILIDADES E LIMITAÇÕES
+=============================================================================
+
+10.1. A Secretaria de Saúde não se responsabiliza por:
+   - Interrupções temporárias no funcionamento do portal
+   - Problemas de conexão de internet do usuário
+   - Uso indevido das credenciais por terceiros devido a negligência do usuário
+
+10.2. O portal não substitui o atendimento presencial quando necessário.
+
+=============================================================================
+11. MENORES DE IDADE
+=============================================================================
+
+11.1. O cadastro de menores de 18 anos deve ser realizado por pais ou responsáveis legais.
+11.2. Ao cadastrar um menor, o responsável declara ter autoridade legal para fornecer os dados e consentir com o tratamento.
+
+=============================================================================
+12. ALTERAÇÕES DOS TERMOS
+=============================================================================
+
+12.1. Estes termos podem ser atualizados periodicamente.
+12.2. Alterações significativas serão comunicadas através do portal ou por e-mail.
+12.3. O uso continuado do portal após as alterações constitui aceitação dos novos termos.
+
+=============================================================================
+13. ENCARREGADO DE DADOS (DPO)
+=============================================================================
+
+Para questões relacionadas à proteção de dados pessoais, contate:
+
+Encarregado de Proteção de Dados
+Secretaria Municipal de Saúde de Marília
+E-mail: dpo.saude@marilia.sp.gov.br
+Telefone: (14) 3402-XXXX
+Endereço: [Endereço da Secretaria Municipal de Saúde]
+
+=============================================================================
+14. LEGISLAÇÃO APLICÁVEL
+=============================================================================
+
+14.1. Estes termos são regidos pela legislação brasileira, especialmente:
+   - Lei Geral de Proteção de Dados (Lei nº 13.709/2018)
+   - Marco Civil da Internet (Lei nº 12.965/2014)
+   - Código de Defesa do Consumidor (Lei nº 8.078/1990)
+   - Lei de Acesso à Informação (Lei nº 12.527/2011)
+
+14.2. Fica eleito o foro da Comarca de Marília/SP para dirimir quaisquer controvérsias relacionadas a estes termos.
+
+=============================================================================
+15. DISPOSIÇÕES GERAIS
+=============================================================================
+
+15.1. Estes termos constituem o acordo integral entre você e a Secretaria Municipal de Saúde de Marília.
+15.2. A invalidade de qualquer cláusula não afeta a validade das demais.
+15.3. O não exercício de qualquer direito previsto nestes termos não constitui renúncia.
+
+=============================================================================
+CONTATO
+=============================================================================
+
+Secretaria Municipal de Saúde de Marília
+Telefone: (14) 3402-XXXX
+E-mail: saude@marilia.sp.gov.br
+Site: www.marilia.sp.gov.br/saude
+Horário de atendimento: Segunda a sexta, das 8h às 17h
+
+=============================================================================
+
+Ao clicar em "Aceito os termos de uso e política de privacidade", você declara ter lido, compreendido e concordado com todos os termos acima descritos.
+
+Data de criação do documento: 30/10/2025
+Versão: 1.0
