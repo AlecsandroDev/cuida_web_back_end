@@ -21,10 +21,25 @@ exports.login = async (req, res) => {
 
     if (!user) return res.status(401).json({ error: "Credenciais inválidas" });
     
-    const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user.id_cliente }, SECRET, { expiresIn: "1h" });
+    
     res.json({ token, nome: user.nome_completo });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao logar" });
+  }
+};
+
+
+exports.perfil = async (req, res) => {
+  try {
+    const data = await Cliente.perfilCliente(req.params.id);
+
+    if (!data) return res.status(401).json({ error: "Erro ao buscar dados de Cliente - Não autorizado" });
+    res.status(200).json(data);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao buscar dados de Cliente" });
   }
 };

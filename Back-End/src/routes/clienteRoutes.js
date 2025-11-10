@@ -5,7 +5,9 @@ const autenticarToken = require("../middlewares/authMiddleware");
 
 router.post("/register", controller.register);
 router.post("/login", controller.login);
-router.get("/perfil", autenticarToken, (req, res) => {
+router.get("/perfil/:id", controller.perfil);
+
+router.get("/perfils", autenticarToken, (req, res) => {
   res.json({ message: `Bem-vindo, usuário ${req.user.id}` });
 });
 

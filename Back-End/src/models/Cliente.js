@@ -50,6 +50,37 @@ class Cliente {
     delete cliente.senha_hash;
     return cliente;
   }
+
+  static async perfilCliente(clienteID) {
+    if (!clienteID) {
+      console.error("Não foi possível encontrar o userID no localStorage.");
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('cliente')
+      .select(`
+        nome_completo,
+        idade,
+        cpf,
+        rg,
+        email,
+        telefone,
+        endereco_completo,
+        carteirinha_sus,
+        tipo_sanguineo,
+        medicamentos_restritos,
+        problemas_saude
+      `)
+      .eq('id_cliente', clienteID)
+      .single();
+
+    if (error) {
+      return [];
+    }
+
+    return data;
+  }
 }
 
 module.exports = Cliente;
