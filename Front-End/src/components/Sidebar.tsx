@@ -3,15 +3,19 @@ import { logout } from "../services/auth";
 import { User, Map, Pill, Home, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { get_profile } from "../services/perfil";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   userName?: string;
-  userPhoto?: string;
+  profileImage?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ userName = "Usuário", userPhoto }) => {
+const id_cliente = localStorage.getItem("id");
+const dataProfile = await get_profile(id_cliente);
+
+const Sidebar: React.FC<SidebarProps> = ({ userName = dataProfile.nome_completo, profileImage =  `${dataProfile.foto_url}?t=${new Date().getTime()}`}) => {
   const location = useLocation();
   const navigate = useNavigate(); 
   const menuItems = [
@@ -67,8 +71,11 @@ const Sidebar: React.FC<SidebarProps> = ({ userName = "Usuário", userPhoto }) =
         <div className="p-4 border-t">
           <Link to="/profile" className="flex items-center gap-3 mb-3">
             <Avatar className="h-10 w-10 border-2 border-primary">
-              {userPhoto ? (
-                <AvatarImage src={userPhoto} alt={userName} />
+              {profileImage ? (
+                <AvatarImage
+                      src={profileImage || "/placeholder.svg"}
+                      alt="Foto de perfil"
+                    />
               ) : (
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   <User className="h-5 w-5" />
