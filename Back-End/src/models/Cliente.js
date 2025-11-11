@@ -1,6 +1,5 @@
-// Importa o cliente Supabase (do seu arquivo /db/database.js)
-const supabase = require('../db/database');
-const bcrypt = require('bcryptjs');
+const supabase = require("../db/database");
+const bcrypt = require("bcryptjs");
 
 class Cliente {
   static async createCliente(data) {
@@ -8,7 +7,7 @@ class Cliente {
     const senha_hash = await bcrypt.hash(data.password, salt);
 
     const { data: novoCliente, error } = await supabase
-      .from('cliente')
+      .from("cliente")
       .insert({
         nome_completo: data.nome,
         idade: data.idade,
@@ -21,13 +20,14 @@ class Cliente {
         tipo_sanguineo: data.tipoSanguineo,
         medicamentos_restritos: data.medicamentosRestritos,
         problemas_saude: data.diagnosticos,
-        senha_hash: senha_hash
+        senha_hash: senha_hash,
+        foto_url: null // 👈 campo para guardar URL da foto
       })
       .select()
       .single();
 
     if (error) {
-      console.error('Erro ao criar cliente:', error.message);
+      console.error("Erro ao criar cliente:", error.message);
       return null;
     }
 
@@ -36,50 +36,67 @@ class Cliente {
 
   static async loginCliente(data) {
     const { data: cliente, error } = await supabase
-      .from('cliente')
-      .select('*')
-      .eq('cpf', data.cpf)
+      .from("cliente")
+      .select("*")
+      .eq("cpf", data.cpf)
       .single();
 
-    if (error || !cliente) { return null; }
+    if (error || !cliente) return null;
 
     const senhaCorreta = await bcrypt.compare(data.password, cliente.senha_hash);
-
-    if (!senhaCorreta) { return null; }
+    if (!senhaCorreta) return null;
 
     delete cliente.senha_hash;
     return cliente;
   }
 
   static async perfilCliente(clienteID) {
-    if (!clienteID) {
-      console.error("Não foi possível encontrar o userID no localStorage.");
-      return null;
-    }
-
     const { data, error } = await supabase
-      .from('cliente')
-      .select(`
-        nome_completo,
-        idade,
-        cpf,
-        rg,
-        email,
-        telefone,
-        endereco_completo,
-        carteirinha_sus,
-        tipo_sanguineo,
-        medicamentos_restritos,
-        problemas_saude
-      `)
-      .eq('id_cliente', clienteID)
+      .from("cliente")
+      .select("*")
+      .eq("id_cliente", clienteID)
       .single();
 
     if (error) {
-      return [];
+      console.error("Erro ao buscar perfil:", error.message);
+      return null;
     }
 
     return data;
+  }
+
+  static async atualizarFoto(clienteID, file) {
+    try {
+      const buffer = Buffer.from(file.buffer);
+
+      // Upload no Supabase Storage
+      const { data: uploaded, error: uploadError } = await supabase.storage
+        .from("perfil") // 👈 Bucket deve existir no Supabase
+        .upload(`fotos/${clienteID}.jpg`, buffer, {
+          contentType: file.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Gera URL pública
+      const { data: publicUrl } = supabase.storage
+        .from("perfil")
+        .getPublicUrl(`fotos/${clienteID}.jpg`);
+
+      // Atualiza no banco
+      const { error: updateError } = await supabase
+        .from("cliente")
+        .update({ foto_url: publicUrl.publicUrl })
+        .eq("id_cliente", clienteID);
+
+      if (updateError) throw updateError;
+
+      return publicUrl.publicUrl;
+    } catch (err) {
+      console.error("Erro ao enviar imagem:", err);
+      return null;
+    }
   }
 }
 
