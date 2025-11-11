@@ -21,7 +21,7 @@ class Cliente {
         medicamentos_restritos: data.medicamentosRestritos,
         problemas_saude: data.diagnosticos,
         senha_hash: senha_hash,
-        foto_url: null // 👈 campo para guardar URL da foto
+        foto_url: null
       })
       .select()
       .single();
@@ -69,9 +69,8 @@ class Cliente {
     try {
       const buffer = Buffer.from(file.buffer);
 
-      // Upload no Supabase Storage
       const { data: uploaded, error: uploadError } = await supabase.storage
-        .from("perfil") // 👈 Bucket deve existir no Supabase
+        .from("perfil")
         .upload(`fotos/${clienteID}.jpg`, buffer, {
           contentType: file.mimetype,
           upsert: true,
@@ -79,12 +78,10 @@ class Cliente {
 
       if (uploadError) throw uploadError;
 
-      // Gera URL pública
       const { data: publicUrl } = supabase.storage
         .from("perfil")
         .getPublicUrl(`fotos/${clienteID}.jpg`);
 
-      // Atualiza no banco
       const { error: updateError } = await supabase
         .from("cliente")
         .update({ foto_url: publicUrl.publicUrl })

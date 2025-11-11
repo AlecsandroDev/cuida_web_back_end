@@ -43,6 +43,8 @@ exports.uploadFoto = async (req, res) => {
     const clienteID = req.params.id;
     const file = req.file;
 
+    if (!file) return res.status(400).json({ error: "Nenhum arquivo enviado." });
+    
     const url = await Cliente.atualizarFoto(clienteID, file);
 
     if (!url) return res.status(500).json({ error: "Erro ao enviar foto" });

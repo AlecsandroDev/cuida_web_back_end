@@ -17,8 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userName = "Usuário", userPhoto }) =
   const menuItems = [
     { title: "Início", icon: Home, path: "/PortalCidadao" },
     { title: "Perfil", icon: User, path: "/Profile" },
-    { title: "Mapa de Unidades", icon: Map, path: "/mapa" },
-    { title: "Consultar Medicamentos", icon: Pill, path: "/mapa" },
+    { title: "Mapa", icon: Map, path: "/mapa" }
   ];
    const handleLogout = () => {
     logout();

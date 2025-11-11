@@ -1,13 +1,11 @@
 import api from "./api";
 
-export const salvarFotoPerfil = async (id: string, file: File) => {
+export async function uploadPhoto(id, file) {
   const formData = new FormData();
   formData.append("foto", file);
 
   try {
-    const { data } = await api.post(`/clientes/upload-foto/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const { data } = await api.post(`/clientes/upload-foto/${id}`, formData);
 
     return data.foto_url;
   } catch (error) {
@@ -15,8 +13,3 @@ export const salvarFotoPerfil = async (id: string, file: File) => {
     throw error;
   }
 };
-
-export const loadFotoPerfil = async (id: string) => {
- const data = await api.post(`/clientes/get-foto/${id}`);
- return data;
-}
