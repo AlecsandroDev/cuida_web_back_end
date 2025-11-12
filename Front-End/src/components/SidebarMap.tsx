@@ -1,5 +1,3 @@
-// Front-End/src/components/SidebarMap.tsx (Versão Completa com Props)
-
 import { Clock, Eye, Heart, MapPin, Package, Phone, Warehouse, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,62 +5,10 @@ import ItemSidebarMap from "./ItemSidebarMap";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ItemDetailSidebarMap from "./ItemDetailSidebarMap";
-import { Map } from "leaflet"; // Importando o tipo do Mapa (assumindo Leaflet)
 
-// --- 1. DEFINIÇÃO DOS TIPOS (PROPS) ---
 
-// Tipo para os dados do medicamento vindos da API
-export interface Medicamento {
-    id: string;
-    name: string;
-    dosage: string;
-    quantity: number;
-    tipo: string;
-    description: string;
-    foto_url?: string; // A foto que adicionamos
-}
-
-// Tipo para os dados da unidade vindos da API
-export interface HealthUnit {
-    id: string;
-    name: string;
-    address: string;
-    workingHours: string;
-    phone: string;
-    type: string;
-    medications: Medicamento[];
-}
-
-// Tipo para o estado de detalhe (combina campos)
-export interface MedicamentoDetalhe {
-    id: string;
-    name: string;
-    dosage: string;
-    quantity: number;
-    imageUrl: string;
-    tipo: string;
-    description: string;
-    // (Campos do useState original)
-    requiresPrescription: boolean;
-    viewingCount: number;
-}
-
-// Props do componente SidebarMap
-interface SidebarMapProps {
-    selectedUnit: HealthUnit | null;
-    mapInstanceRef: React.RefObject<Map | null>; // Tipo do Mapa (Leaflet)
-    setSelectedUnit: (unit: HealthUnit | null) => void;
-    unitViewers: Record<string, number>;
-}
-
-// --- 2. APLICAÇÃO DOS TIPOS ---
-
-export default function SidebarMap({ 
-    selectedUnit, 
-    mapInstanceRef, 
-    setSelectedUnit, 
-    unitViewers 
-}: SidebarMapProps) { // <-- Props aplicadas
+export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUnit, unitViewers }: any) {
+    
 
     const [medicationInterests, setMedicationInterests] = useState<Record<string, number>>({});
     const { toast } = useToast();
@@ -81,51 +27,28 @@ export default function SidebarMap({
     };
 
     const [hiddenDetailMenu, setHiddenDetailMenu] = useState(false);
-    
-    // Aplicando o tipo ao useState
-    const [selectedItemDetail, setSelectedItemDetail] = useState<MedicamentoDetalhe>({
+    const [selectedItemDetail, setSelectedItemDetail] = useState({
         id: "",
         name: "",
         dosage: "",
         quantity: 0,
-        imageUrl: "", // <-- Nosso novo campo
+        foto_url: "",
         tipo: 'pill',
         description: "",
-        requiresPrescription: false,
+        requiresPrescription: true,
         viewingCount: 0
     });
 
-    // Tipo para os dados que vêm do 'ItemSidebarMap'
-    interface HandleDetailData {
-        id: string;
-        name: string;
-        dosage: string;
-        quantity: number;
-        tipo: string;
-        description: string;
-        imageUrl?: string;
-    }
-
-    const handleDetailMenu = ({ data }: { data: HandleDetailData }) => {
+    const handleDetailMenu = ({ data }) => {
         setHiddenDetailMenu(true);
-        // Combina os dados recebidos com os campos padrão
-        setSelectedItemDetail(prev => ({
-            ...prev, // Mantém 'requiresPrescription', 'viewingCount'
-            ...data, // Adiciona os dados do item clicado
-            imageUrl: data.imageUrl || "", // Garante que 'imageUrl' seja uma string
-        }));
-    }
-
-    // Se não houver unidade selecionada, não renderiza nada (ou um placeholder)
-    if (!selectedUnit) {
-        return null; // Ou um componente de "Selecione uma unidade"
+        setSelectedItemDetail(data);
     }
 
     return (
         <div className="w-full md:w-1/2 lg:w-2/5 h-1/2 md:h-full bg-background border-b md:border-r md:border-b-0 border-border z-[1000] overflow-y-hidden fixed bottom-0 md:static">
             { hiddenDetailMenu ? (
                 <ItemDetailSidebarMap 
-                    medication={selectedItemDetail} // O tipo agora bate (MedicamentoDetalhe)
+                    medication={selectedItemDetail} 
                     onBack={ () => setHiddenDetailMenu(false) } 
                     selectedUnit={selectedUnit}
                     unitViewers={unitViewers}
@@ -147,10 +70,10 @@ export default function SidebarMap({
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                            setSelectedUnit(null);
-                            if (mapInstanceRef.current) {
-                                mapInstanceRef.current.setView([-22.2144, -49.9463], 13, { animate: true });
-                            }
+                        setSelectedUnit(null);
+                        if (mapInstanceRef.current) {
+                            mapInstanceRef.current.setView([-22.2144, -49.9463], 13, { animate: true });
+                        }
                         }}
                         className="hover:bg-accent"
                     >
@@ -178,27 +101,28 @@ export default function SidebarMap({
                     <h3 className="font-semibold text-lg mb-4 text-foreground flex items-center gap-2">
                         <Package className="w-5 h-5 text-primary" />
                         Medicamentos Disponíveis
+                        
                     </h3>
                     <div className="space-y-3">
-                        {/* Tipando 'med' como 'Medicamento' */}
-                        {selectedUnit.medications.filter(med => med.quantity > 0).map((med: Medicamento) => {
-                            const interests = medicationInterests[med.id] || 0;
-                            
-                            return (
-                                <ItemSidebarMap
-                                    key={med.id} // Chave movida para o topo
-                                    id={med.id}
-                                    name={med.name}
-                                    dosage={med.dosage}
-                                    quantity={med.quantity}
-                                    tipo={med.tipo}
-                                    interests={interests}
-                                    description={med.description}
-                                    imageUrl={med.foto_url} // <-- Passando a foto
-                                    handleMedicationInterest={handleMedicationInterest}
-                                    handleDetail={handleDetailMenu}
-                                />
-                            );
+                        {selectedUnit.medications.filter(med => med.quantity > 0).map((med) => {
+                        const interests = medicationInterests[med.id] || 0;
+                        
+                        return (
+                            <ItemSidebarMap
+                                id={med.id}
+                                name={med.name}
+                                dosage={med.dosage}
+                                quantity={med.quantity}
+                                tipo={med.tipo}
+                                interests={interests}
+                                description={med.description}
+                                foto_url={med.foto_url}
+                                requiresPrescription={med.requiresPrescription}
+                                viewingCount={med.viewingCount}
+                                handleMedicationInterest={handleMedicationInterest}
+                                handleDetail={handleDetailMenu}
+                            />
+                        );
                         })}
                     </div>
                 </div>
