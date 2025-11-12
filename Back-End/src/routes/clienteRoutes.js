@@ -10,6 +10,7 @@ router.post("/register", controller.register);
 router.post("/login", controller.login);
 
 router.get("/perfil/:id", controller.perfil);
+router.patch('/update/:id', controller.updateCliente);
 
 router.post("/upload-foto/:id", upload.single("foto"), controller.uploadFoto);
 

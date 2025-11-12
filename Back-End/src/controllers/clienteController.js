@@ -38,6 +38,28 @@ exports.perfil = async (req, res) => {
   }
 };
 
+exports.updateCliente = async (req, res) => {
+  const { id } = req.params; 
+  const data = req.body;
+
+  try {
+    // 1. Validação simples (pode melhorar)
+    if (!id || Object.keys(data).length === 0) {
+      return res.status(400).json({ error: 'ID do cliente e dados para atualizar são obrigatórios.' });
+    }
+
+    // 2. Chama o método de atualização do Model
+    const updatedCliente = await Cliente.atualizarPerfilCliente(id, data);
+    
+    // 3. Retorna o cliente atualizado (o React Query usará isso)
+    res.status(200).json(updatedCliente);
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao atualizar cliente', details: error.message });
+  }
+};
+
+
 exports.uploadFoto = async (req, res) => {
   try {
     const clienteID = req.params.id;

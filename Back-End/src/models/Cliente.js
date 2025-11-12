@@ -65,6 +65,27 @@ class Cliente {
     return data;
   }
 
+  static async atualizarPerfilCliente(clienteID, dados) {
+    delete dados.clienteID;
+    delete dados.created_at;
+    delete dados.foto_url; 
+
+    const { data, error } = await supabase
+      .from('cliente')
+      .update(dados)
+      .eq('id_cliente', clienteID)           
+      .select()              
+      .single();             
+
+    if (error) {
+      console.error("Supabase error (update):", error);
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+
   static async atualizarFoto(clienteID, file) {
     try {
       const buffer = Buffer.from(file.buffer);

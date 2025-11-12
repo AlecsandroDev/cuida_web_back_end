@@ -1,34 +1,51 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"; 
+// Front-End/src/components/Sidebar.tsx (Versão Completa Modificada)
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../services/auth";
 import { User, Map, Pill, Home, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { get_profile } from "../services/perfil";
+// import { get_profile } from "../services/perfil"; // <-- Não precisamos mais disso aqui
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useUserProfile } from "@/hooks/useUserProfile"; // 1. Importar o novo Hook
+import { Skeleton } from "@/components/ui/skeleton"; // Importar Skeleton para loading
 
-interface SidebarProps {
-  userName?: string;
-  profileImage?: string;
-}
+// Remover a lógica de props default, pois os dados virão do hook
+// interface SidebarProps {
+//   userName?: string;
+//   profileImage?: string;
+// }
 
-const id_cliente = localStorage.getItem("id");
-const dataProfile = await get_profile(id_cliente);
+// Remover chamadas de API no top-level
+// const id_cliente = localStorage.getItem("id");
+// const dataProfile = await get_profile(id_cliente);
 
-const Sidebar: React.FC<SidebarProps> = ({ userName = dataProfile.nome_completo, profileImage =  `${dataProfile.foto_url}?t=${new Date().getTime()}`}) => {
+const Sidebar: React.FC = () => { // Remover props
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
+  // 2. Consumir os dados do cache (via React Query)
+  const { profile, isLoadingProfile } = useUserProfile();
+
   const menuItems = [
     { title: "Início", icon: Home, path: "/PortalCidadao" },
     { title: "Perfil", icon: User, path: "/Profile" },
-    { title: "Mapa", icon: Map, path: "/mapa" }
+    { title: "Mapa", icon: Map, path: "/mapa" },
   ];
-   const handleLogout = () => {
+  
+  const handleLogout = () => {
     logout();
-    navigate("/"); 
+    navigate("/");
   };
 
-  return (
+  // 3. Gerar URL da imagem (apenas se o perfil estiver carregado)
+  // Adiciona um timestamp para evitar cache do navegador se a foto_url for a mesma
+  const profileImage = profile?.foto_url
+    ? `${profile.foto_url}?t=${new Date().getTime()}`
+    : "/placeholder.svg";
+
+ return (
     <aside className="hidden md:flex flex-col w-64 border-r bg-card h-screen fixed top-0 left-0 z-10">
       {/* Cabeçalho do Portal */}
       <div className="flex items-center p-4 border-b bg-background">
@@ -84,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userName = dataProfile.nome_completo,
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                {userName}
+                {profile?.nome_completo || "Usuário"}
               </p>
             </div>
           </Link>

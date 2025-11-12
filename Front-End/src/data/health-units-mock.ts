@@ -33,7 +33,7 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
         minStock,
         maxStock,
         status,
-        imageUrl: medInfo.imagem_url || "",
+        foto_url: medInfo.foto_url || "",
         description: medInfo.descricao || "",
         requiresPrescription: medInfo.requer_prescricao || false,
         viewingCount: 0,

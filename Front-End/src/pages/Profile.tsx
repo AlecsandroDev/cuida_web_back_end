@@ -1,3 +1,5 @@
+// Front-End/src/pages/Profile.tsx (Versão Completa Refatorada)
+
 import { useEffect, useState } from "react";
 import { Camera, User, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,12 +15,18 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
-import { get_profile } from "../services/perfil";
-import { uploadPhoto } from "../services/fotoPerfil";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { get_profile, update_profile } from "../services/perfil"; // (Certifique-se que esta função exista)
+import { Skeleton } from "@/components/ui/skeleton"; // Importar Skeleton
 
 export default function Perfil() {
-  const [profileImage, setProfileImage] = useState<string>("/placeholder.svg");
+  // Hooks do React Query
+  const queryClient = useQueryClient();
+  const { profile, isLoadingProfile, isProfileError } = useUserProfile();
+
+  // Estado local do formulário
   const [formData, setFormData] = useState({
     nome: "Usuário",
     idade: "",
@@ -31,77 +39,166 @@ export default function Perfil() {
     tipoSanguineo: "",
     medicamentosRestritos: "",
     diagnosticos: "",
-    foto_url: "",
   });
   const id_cliente = localStorage.getItem("id");
 
+  // Sincroniza o cache do React Query (profile) com o estado do formulário (formData)
   useEffect(() => {
-    async function profileGet() {
-      try {
-        if (!id_cliente) return;
-        const dataProfile = await get_profile(id_cliente);
-
-        setFormData((prev) => ({
-          ...prev,
-          nome: dataProfile.nome_completo ?? prev.nome,
-          idade: dataProfile.idade ?? prev.idade,
-          cpf: dataProfile.cpf ?? prev.cpf,
-          rg: dataProfile.rg ?? prev.rg,
-          email: dataProfile.email ?? prev.email,
-          telefone: dataProfile.telefone ?? prev.telefone,
-          endereco: dataProfile.endereco_completo ?? prev.endereco,
-          carteirinha: dataProfile.carteirinha_sus ?? prev.carteirinha,
-          tipoSanguineo: dataProfile.tipo_sanguineo ?? prev.tipoSanguineo,
-          medicamentosRestritos: dataProfile.medicamentos_restritos ?? prev.medicamentosRestritos,
-          diagnosticos: dataProfile.problemas_saude ?? prev.diagnosticos,
-          foto_url: dataProfile.foto_url ?? prev.foto_url,
-        }));
-
-        if (dataProfile.foto_url) {
-          const cacheBustedUrl = `${dataProfile.foto_url}?t=${new Date().getTime()}`;
-          
-          setProfileImage(cacheBustedUrl);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar perfil:", err);
-      }
+    if (profile) {
+      setFormData((prev) => ({
+        ...prev,
+        nome: profile.nome_completo ?? prev.nome,
+        idade: profile.idade ?? prev.idade,
+        cpf: profile.cpf ?? prev.cpf,
+        rg: profile.rg ?? prev.rg,
+        email: profile.email ?? prev.email,
+        telefone: profile.telefone ?? prev.telefone,
+        endereco: profile.endereco_completo ?? prev.endereco,
+        carteirinha: profile.carteirinha_sus ?? prev.carteirinha,
+        tipoSanguineo: profile.tipo_sanguineo ?? prev.tipoSanguineo,
+        medicamentosRestritos:
+          profile.medicamentos_restritos ?? prev.medicamentosRestritos,
+        diagnosticos: profile.problemas_saude ?? prev.diagnosticos,
+      }));
     }
+  }, [profile]); // Depende dos dados do cache
 
-    profileGet();
-  }, []);
+  // Deriva a URL da imagem diretamente do cache
+  const profileImage = profile?.foto_url
+    ? `${profile.foto_url}?t=${new Date().getTime()}` // Timestamp para evitar cache do navegador
+    : "/placeholder.svg";
 
+  // Mutação 1: Upload de Foto
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !id_cliente) return;
 
-    try {
-      const urlDaFoto = await uploadPhoto(id_cliente, file);
-      
-      const cacheBustedUrl = `${urlDaFoto}?t=${new Date().getTime()}`;
+    const formData = new FormData();
+    formData.append("foto", file);
 
-      setProfileImage(cacheBustedUrl);
-      alert("Foto atualizada com sucesso!");
+    try {
+      await axios.post(
+        `http://localhost:8000/api/clientes/upload-foto/${id_cliente}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      // SUCESSO: Invalida o cache.
+      // O React Query buscará o novo perfil (com a nova foto)
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+
+      toast.success("Foto atualizada com sucesso!");
     } catch (error) {
       console.error("Erro ao enviar imagem:", error);
-      alert("Erro ao enviar imagem!");
+      toast.error("Erro ao enviar imagem!");
     }
   };
 
+  // Atualiza campos do formulário dinamicamente
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSaveProfile = () => {
-    toast.success("Perfil atualizado com sucesso!");
-    console.log("Dados salvos:", formData);
+  // Mutação 2: Salvar dados do formulário
+  const handleSaveProfile = async () => {
+    const dados = {
+      nome_completo: formData.nome,
+      idade: formData.idade,
+      cpf: formData.cpf,
+      rg: formData.rg,
+      email: formData.email,
+      telefone: formData.telefone,
+      endereco_completo: formData.endereco,
+      carteirinha_sus: formData.carteirinha,
+      tipo_sanguineo: formData.tipoSanguineo,
+      medicamentos_restritos: formData.medicamentosRestritos,
+      problemas_saude: formData.diagnosticos,
+    };
+
+    if (!id_cliente) return;
+    try {
+      const res = await update_profile(id_cliente, dados);
+      alert("Dados atualizado com sucesso !");
+      return res.data;      
+    } catch {
+      alert("Credenciais inválidas!");
+    }
+
+    try {
+      // Chama a API de atualização (ex: PUT/PATCH)
+      // await get_profile(id_cliente, formData);
+
+      // SUCESSO: Invalida o cache
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+
+      // toast.success("Perfil atualizado com sucesso!");
+      console.log("Dados salvos:", formData);
+    } catch (error) {
+      console.error("Erro ao salvar perfil:", error);
+      toast.error("Falha ao salvar o perfil.");
+    }
   };
 
+  // Estado de Carregamento
+  if (isLoadingProfile) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />{" "}
+        {/* A Sidebar também mostrará Skeletons, pois usa o mesmo hook */}
+        <main className="flex-1 px-4 py-8 md:px-8 max-w-4xl mx-auto space-y-6">
+          <div className="mb-8">
+            <Skeleton className="h-9 w-48 mb-2" />
+            <Skeleton className="h-5 w-72" />
+          </div>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent className="flex flex-col items-center space-y-4">
+              <Skeleton className="h-32 w-32 rounded-full" />
+              <Skeleton className="h-4 w-56" />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // Estado de Erro
+  if (isProfileError) {
+    return (
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-1 px-4 py-8 md:px-8 max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-red-600">
+            Erro ao carregar o perfil.
+          </h1>
+        </main>
+      </div>
+    );
+  }
+
+  // Conteúdo principal (se carregado com sucesso)
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        <Sidebar />
-
+        <Sidebar />{" "}
+        {/* A Sidebar agora recebe os dados do cache instantaneamente */}
         <main className="flex-1 px-4 py-8 md:px-8 max-w-4xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -124,10 +221,8 @@ export default function Perfil() {
               <CardContent className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-32 w-32 border-4 border-primary">
-                    <AvatarImage
-                      src={profileImage || "/placeholder.svg"}
-                      alt="Foto de perfil"
-                    />
+                    {/* Usa a variável 'profileImage' derivada do cache */}
+                    <AvatarImage src={profileImage} alt="Foto de perfil" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-4xl">
                       <User className="h-16 w-16" />
                     </AvatarFallback>
@@ -142,7 +237,7 @@ export default function Perfil() {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={handleImageUpload}
+                      onChange={handleImageUpload} // Dispara a Mutação 1
                     />
                   </label>
                 </div>
@@ -161,6 +256,8 @@ export default function Perfil() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* ... (Todo o seu formulário com os 'value={formData.nome}' etc.) ... */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome" className="flex items-center gap-2">
@@ -304,6 +401,8 @@ export default function Perfil() {
 
                 <div className="flex justify-end pt-4">
                   <Button onClick={handleSaveProfile} className="px-8">
+                    {" "}
+                    {/* Dispara a Mutação 2 */}
                     Salvar Alterações
                   </Button>
                 </div>
