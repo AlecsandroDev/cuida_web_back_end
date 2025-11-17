@@ -37,6 +37,7 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
         description: medInfo.descricao || "",
         requiresPrescription: medInfo.requer_prescricao || false,
         viewingCount: 0,
+        interests: 0,
       };
     })
     .filter(Boolean) as any[];

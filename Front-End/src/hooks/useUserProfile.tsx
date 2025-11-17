@@ -10,6 +10,7 @@ const fetchProfile = async () => {
   if (!data) {
     throw new Error("Falha ao buscar perfil");
   }
+
   return data;
 };
 

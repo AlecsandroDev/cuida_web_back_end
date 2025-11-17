@@ -72,9 +72,6 @@ const HealthMap = () => {
         iconAnchor: [22.5, 22.5]
       });
     }
-
-  
-    
     return L.divIcon({
       html: `
         <div style="
@@ -106,13 +103,10 @@ const HealthMap = () => {
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
-
     mapInstanceRef.current = L.map(mapRef.current).setView([-22.2144, -49.9463], 13);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mapInstanceRef.current);
-
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
@@ -143,14 +137,10 @@ const HealthMap = () => {
       `;
 
       marker.bindPopup(popupContent);
+      
+
       marker.on('click', () => {
         setSelectedUnit(unit);
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.setView(unit.coordinates, 17, { 
-            animate: true,
-            duration: 0.8
-          });
-        }
       });
 
       marker.addTo(mapInstanceRef.current!);
@@ -160,7 +150,6 @@ const HealthMap = () => {
 
   useEffect(() => {
     let filtered = healthUnits;
-    
     if (medicationSearch) {
       filtered = filtered.filter(unit =>
         unit.medications.some(med => 
@@ -172,7 +161,6 @@ const HealthMap = () => {
     } else {
       setMedicationSearchCount(0);
     }
-    
     setFilteredUnits(filtered);
   }, [medicationSearch]);
 
@@ -182,7 +170,6 @@ const HealthMap = () => {
       viewers[unit.id] = Math.floor(Math.random() * 8) + 2;
     });
     setUnitViewers(viewers);
-
     const interval = setInterval(() => {
       const newViewers: Record<string, number> = {};
       healthUnits.forEach(unit => {
@@ -191,22 +178,45 @@ const HealthMap = () => {
       });
       setUnitViewers(newViewers);
     }, 5000);
-
     return () => clearInterval(interval);
   }, []);
 
 
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!mapInstanceRef.current) return;
 
+      mapInstanceRef.current.invalidateSize(true); 
+
+      if (selectedUnit) {
+        mapInstanceRef.current.flyTo(selectedUnit.coordinates, 17, {
+          animate: true,
+          duration: 0.8
+        });
+      }
+      
+ 
+      
+    }, 100); 
+
+    return () => clearTimeout(timer);
+  }, [selectedUnit]); 
+
+
+  
   return (
     <div className="h-screen flex flex-col">
-      <div className="flex-1 relative flex flex-col md:flex-row">
+      <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
 
-        {selectedUnit && ( <SidebarMap
-          selectedUnit={selectedUnit}
-          mapInstanceRef={mapInstanceRef}
-          setSelectedUnit={setSelectedUnit}
-          unitViewers={unitViewers}
-        /> )}
+        {selectedUnit && ( 
+          <SidebarMap
+            selectedUnit={selectedUnit}
+            mapInstanceRef={mapInstanceRef}
+            setSelectedUnit={setSelectedUnit}
+            unitViewers={unitViewers}
+          /> 
+        )}
 
         {!selectedUnit && (
           <div className="absolute top-4 left-0 right-0 mx-auto z-[1000] w-[90%] md:w-1/2 lg:w-2/5">
@@ -248,7 +258,7 @@ const HealthMap = () => {
 
         <div 
           ref={mapRef} 
-          className="absolute inset-0 w-full h-full"
+          className="flex-1 h-full"
           style={{ zIndex: 0 }}
         />
       </div>

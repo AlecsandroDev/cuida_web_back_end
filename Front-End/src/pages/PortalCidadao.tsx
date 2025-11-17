@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"; 
 import { Map, Pill } from "lucide-react";
 import { Link } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
@@ -11,16 +12,57 @@ import escorpiaoImg from "@/assets/escorpiao.png";
 import carretasImg from "@/assets/carretas-mamografia.png";
 import novembroAzulImg from "@/assets/novembro-azul.png";
 import denuncieImg from "@/assets/Denuncie.png";
-import dentista from "@/assets/dentista.png";
-
+import Vacina from "@/assets/VacinaImportante.png"; 
+import Azul from "@/assets/NovembroAzul.png";
+import DoeSangue from "@/assets/DoeSangue.png";
+import DoeOrgaos from "@/assets/DoeOrgaos.png";
 
 const Index = () => {
+
+  const carouselItems = [
+    {
+      src: denuncieImg,
+      alt: "Denuncie",
+      href: "https://vidafarmacias.com.br/campanha"
+    },
+    {
+      src: Vacina,
+      alt: "Vacina Importante",
+      href: "https://seu-link-para-vacina.com" 
+    },
+    {
+      src: Azul,
+      alt: "Novembro Azul",
+      href: "https://seu-link-novembro-azul.com"
+    },
+    {
+      src: DoeSangue,
+      alt: "Doe Sangue",
+      href: "https://seu-link-doe-sangue.com"
+    },
+    {
+      src: DoeOrgaos,
+      alt: "Doe Órgãos",
+      href: "https://seu-link-doe-orgaos.com"
+    }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [carouselItems.length]);
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-200 via-white to-blue-200">
-         <div className="flex">
+      <div className="flex">
         <Sidebar />
         
-        <main className="flex-1 px-4 py-12 md:px-8">
+        <main className="flex-1 px-4 py-12 md:px-8 ml-60">
           {/* Hero Section */}
           <section className="mb-12 text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -31,6 +73,7 @@ const Index = () => {
             </p>
           </section>
 
+          {/* Seção dos Cards */}
           <section className="mb-16">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <Card className="hover:shadow-lg transition-shadow">
@@ -53,7 +96,7 @@ const Index = () => {
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Pill className="h-5 w-5 text-secondary" />
+                    <Pill className="h-5 w-5 text-primary" />
                     Consulte Medicamentos
                   </CardTitle>
                   <CardDescription>
@@ -61,29 +104,39 @@ const Index = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button asChild variant="secondary" className="w-full">
+                  <Button asChild className="w-full">
                     <Link to="/mapa">Buscar Medicamento</Link>
                   </Button>
                 </CardContent>
               </Card>
-
             </div>
           </section>
 
-
+          {/* Seção do Carrossel */}
           <section className="mb-12 text-center">
-            <a
-              href="https://vidafarmacias.com.br/campanha"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src={denuncieImg}
-                alt="Denuncie"
-                className="mx-auto rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full max-w-4xl"
-              />
-            </a>
+            <div className="relative w-full max-w-6xl mx-auto h-64 md:h-96">
+              {carouselItems.map((item, index) => (
+                <a
+                  key={item.src}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`
+                    absolute inset-0 transition-opacity duration-1000 ease-in-out
+                    ${index === currentIndex ? 'opacity-100' : 'opacity-0'}
+                  `}
+                >
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    className="mx-auto rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full h-full object-cover" 
+                  />
+                </a>
+              ))}
+            </div>
           </section>
+
+          {/* Seção Notícias */}
           <section className="mb-16">
             <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
               Notícias e Campanhas de Saúde

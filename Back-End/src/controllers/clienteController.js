@@ -43,15 +43,12 @@ exports.updateCliente = async (req, res) => {
   const data = req.body;
 
   try {
-    // 1. Validação simples (pode melhorar)
     if (!id || Object.keys(data).length === 0) {
       return res.status(400).json({ error: 'ID do cliente e dados para atualizar são obrigatórios.' });
     }
 
-    // 2. Chama o método de atualização do Model
     const updatedCliente = await Cliente.atualizarPerfilCliente(id, data);
     
-    // 3. Retorna o cliente atualizado (o React Query usará isso)
     res.status(200).json(updatedCliente);
 
   } catch (error) {

@@ -12,4 +12,4 @@ export async function uploadPhoto(id, file) {
     console.error("Erro ao enviar imagem:", error);
     throw error;
   }
-};
+}

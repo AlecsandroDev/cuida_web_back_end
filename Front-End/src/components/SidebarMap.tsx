@@ -32,11 +32,12 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
         name: "",
         dosage: "",
         quantity: 0,
-        foto_url: "",
+        foto_url: "", 
         tipo: 'pill',
         description: "",
-        requiresPrescription: true,
-        viewingCount: 0
+        requiresPrescription: false,
+        viewingCount: 0,
+        interests: 0
     });
 
     const handleDetailMenu = ({ data }) => {
@@ -45,7 +46,7 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
     }
 
     return (
-        <div className="w-full md:w-1/2 lg:w-2/5 h-1/2 md:h-full bg-background border-b md:border-r md:border-b-0 border-border z-[1000] overflow-y-hidden fixed bottom-0 md:static">
+        <div className="w-full md:w-1/2 lg:w-2/5 bg-background border-b md:border-r md:border-b-0 border-border z-[1000] fixed bottom-0 md:static h-[50vh] md:h-full overflow-y-auto">
             { hiddenDetailMenu ? (
                 <ItemDetailSidebarMap 
                     medication={selectedItemDetail} 
@@ -62,7 +63,7 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
                         <div className="flex items-center gap-1 md:gap-2 flex-wrap">
                             <Badge variant="outline" className="text-xs border-primary/30 bg-primary/5">
                                 <Eye className="w-3 h-3 mr-1" />
-                                {unitViewers[selectedUnit.id] || 0} visualizando esta unidade
+                                {1} visualizando esta unidade
                             </Badge>
                         </div>
                     </div>
@@ -104,17 +105,18 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
                         
                     </h3>
                     <div className="space-y-3">
-                        {selectedUnit.medications.filter(med => med.quantity > 0).map((med) => {
+                        {selectedUnit.medications.filter(med => med.quantity > 0).map((med, index) => {
                         const interests = medicationInterests[med.id] || 0;
                         
                         return (
                             <ItemSidebarMap
+                                key={index || med.id}
                                 id={med.id}
                                 name={med.name}
                                 dosage={med.dosage}
                                 quantity={med.quantity}
                                 tipo={med.tipo}
-                                interests={interests}
+                                interests={med.interests}
                                 description={med.description}
                                 foto_url={med.foto_url}
                                 requiresPrescription={med.requiresPrescription}

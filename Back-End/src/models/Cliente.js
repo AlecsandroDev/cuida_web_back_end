@@ -62,26 +62,28 @@ class Cliente {
       return null;
     }
 
+    delete data.senha_hash;
     return data;
   }
 
   static async atualizarPerfilCliente(clienteID, dados) {
     delete dados.clienteID;
     delete dados.created_at;
-    delete dados.foto_url; 
+    delete dados.foto_url;
 
     const { data, error } = await supabase
       .from('cliente')
       .update(dados)
-      .eq('id_cliente', clienteID)           
-      .select()              
-      .single();             
+      .eq('id_cliente', clienteID)
+      .select()
+      .single();
 
     if (error) {
       console.error("Supabase error (update):", error);
       throw new Error(error.message);
     }
 
+    delete data.senha_hash;
     return data;
   }
 
