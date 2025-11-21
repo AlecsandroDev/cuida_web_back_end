@@ -1,4 +1,5 @@
 const supabase = require('../db/database');
+const { v4: uuidv4 } = require('uuid'); // Certifique-se de ter o uuid importado se for usar no upload
 
 class Medicamento {
   static async getMedicamentos(id) {
@@ -11,11 +12,30 @@ class Medicamento {
       return [];
     }
 
-    return data;
+    // 👇 LÓGICA NOVA: Formata os dados antes de retornar
+    const dadosFormatados = data.map(med => {
+      const classif = med.classificacao || '';
+      const text = classif.toLowerCase();
+      
+      const precisaReceita = text.includes('tarja') || 
+                             text.includes('receita') || 
+                             text.includes('controlado') || 
+                             text.includes('antibiótico') ||
+                             text.includes('antimicrobiano');
+
+      // Retorna o objeto com o novo campo
+      return {
+        ...med,
+        requer_prescricao: precisaReceita
+      };
+    });
+
+    return dadosFormatados;
   }
 
   
   static async uploadFoto(id, file) {
+    // (Mantendo o código de upload original intacto)
     const bucketName = 'fotos_medicamentos';
     const fileExt = file.originalname.split('.').pop();
     const uniqueFileName = `${uuidv4()}.${fileExt}`;
@@ -43,9 +63,9 @@ class Medicamento {
     const publicUrl = urlData.publicUrl;
 
     const { data, error: updateError } = await supabase
-      .from('medicamentos')
+      .from('medicamento') // Atenção: nome da tabela geralmente é singular no seu padrão
       .update({ foto_url: publicUrl })
-      .eq('id', id)
+      .eq('id_medicamento', id)
       .select()
       .single();
 

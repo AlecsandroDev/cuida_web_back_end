@@ -1,46 +1,57 @@
-import { Clock, Eye, Heart, MapPin, Package, Phone, Warehouse, X } from "lucide-react";
+import { Clock, Eye, MapPin, Package, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ItemSidebarMap from "./ItemSidebarMap";
-import { useState } from "react";
+import { useState, useEffect } from "react"; 
 import { useToast } from "@/hooks/use-toast";
 import ItemDetailSidebarMap from "./ItemDetailSidebarMap";
+import { listarFavoritos } from "../services/favoritoService"; 
 
+// Função auxiliar para limpar o ID (Mantida para os Favoritos)
+const extractId = (val: any): number => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    const parts = String(val).split('-');
+    const id = parseInt(parts[parts.length - 1], 10);
+    return isNaN(id) ? 0 : id;
+};
 
 export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUnit, unitViewers }: any) {
     
-
-    const [medicationInterests, setMedicationInterests] = useState<Record<string, number>>({});
     const { toast } = useToast();
-
-    const handleMedicationInterest = (medicationId: string, medicationName: string) => {
-        setMedicationInterests(prev => ({
-            ...prev,
-            [medicationId]: (prev[medicationId] || 0) + 1
-        }));
-        
-        toast({
-            title: "Interesse registrado!",
-            description: `Você demonstrou interesse em ${medicationName}. A demanda foi registrada.`,
-            duration: 3000,
-        });
-    };
-
     const [hiddenDetailMenu, setHiddenDetailMenu] = useState(false);
-    const [selectedItemDetail, setSelectedItemDetail] = useState({
-        id: "",
-        name: "",
-        dosage: "",
-        quantity: 0,
-        foto_url: "", 
-        tipo: 'pill',
-        description: "",
-        requiresPrescription: false,
-        viewingCount: 0,
-        interests: 0
-    });
+    const [selectedItemDetail, setSelectedItemDetail] = useState<any>(null);
+    
+    // Estado dos favoritos
+    const [meusFavoritosMap, setMeusFavoritosMap] = useState<Record<number, number>>({});
 
-    const handleDetailMenu = ({ data }) => {
+    // Carrega favoritos ao abrir a unidade
+    useEffect(() => {
+        const carregarFavoritos = async () => {
+            const idCliente = localStorage.getItem("id");
+            
+            if (idCliente && selectedUnit) {
+                try {
+                    const lista = await listarFavoritos(Number(idCliente));
+                    const mapa: Record<number, number> = {};
+                    const unitIdLimpo = extractId(selectedUnit.id);
+
+                    lista.forEach((fav: any) => {
+                        // Verifica se o favorito pertence a esta unidade
+                        if (extractId(fav.id_unidade) === unitIdLimpo) {
+                            mapa[fav.id_medicamento] = fav.id_favorito;
+                        }
+                    });
+                    setMeusFavoritosMap(mapa);
+                } catch (error) {
+                    console.error("Erro ao carregar favoritos:", error);
+                }
+            }
+        };
+        carregarFavoritos();
+    }, [selectedUnit]); 
+
+    const handleDetailMenu = ({ data }: any) => {
         setHiddenDetailMenu(true);
         setSelectedItemDetail(data);
     }
@@ -102,12 +113,13 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
                     <h3 className="font-semibold text-lg mb-4 text-foreground flex items-center gap-2">
                         <Package className="w-5 h-5 text-primary" />
                         Medicamentos Disponíveis
-                        
                     </h3>
                     <div className="space-y-3">
-                        {selectedUnit.medications.filter(med => med.quantity > 0).map((med, index) => {
-                        const interests = medicationInterests[med.id] || 0;
+                        {selectedUnit.medications.filter((med: any) => med.quantity > 0).map((med: any, index: number) => {
                         
+                        const medIdLimpo = extractId(med.id);
+                        const idFavoritoExistente = meusFavoritosMap[medIdLimpo] || null;
+
                         return (
                             <ItemSidebarMap
                                 key={index || med.id}
@@ -119,9 +131,13 @@ export default function SidebarMap({ selectedUnit, mapInstanceRef, setSelectedUn
                                 interests={med.interests}
                                 description={med.description}
                                 foto_url={med.foto_url}
-                                requiresPrescription={med.requiresPrescription}
+                                
+                                // ✅ CORREÇÃO: Usamos o valor que já vem pronto do mock
+                                requiresPrescription={med.requiresPrescription} 
+                                
                                 viewingCount={med.viewingCount}
-                                handleMedicationInterest={handleMedicationInterest}
+                                unitId={selectedUnit.id}
+                                initialFavoriteId={idFavoritoExistente}
                                 handleDetail={handleDetailMenu}
                             />
                         );

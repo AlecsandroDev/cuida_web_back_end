@@ -2,16 +2,27 @@
 import { HealthUnit } from "@/types/health-units";
 import { get_estoque, get_unidades } from "../services/unidades";
 
+// 👇 1. Função auxiliar para verificar restrição baseada na string
+const checkRestriction = (classification: string | undefined | null) => {
+  if (!classification) return false;
+  const text = String(classification).toLowerCase();
+  return text.includes('tarja') || 
+         text.includes('receita') || 
+         text.includes('controlado') || 
+         text.includes('antibiótico') ||
+         text.includes('antimicrobiano');
+};
+
 const unidades = await get_unidades();
 const estoque = await get_estoque();
 
-export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
+export const healthUnits: HealthUnit[] = unidades.map((unit: any, index: number) => {
   const estoqueDaUnidade = estoque.filter(
-    (item) => item.id_unidade === unit.id
+    (item: any) => item.id_unidade === unit.id
   );
 
   const medications = estoqueDaUnidade
-    .map((itemEstoque, medIndex) => {
+    .map((itemEstoque: any, medIndex: number) => {
       const medInfo = itemEstoque.lote?.medicamento;
       if (!medInfo) return null;
 
@@ -24,6 +35,8 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
       else if (quantity < minStock) status = "attention";
       else if (quantity < minStock * 1.5) status = "normal";
 
+      const isRestricted = checkRestriction(medInfo.classificacao);
+
       return {
         id: `med-${unit.id}-${medInfo.id_medicamento}`,
         name: medInfo.nome,
@@ -35,7 +48,8 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
         status,
         foto_url: medInfo.foto_url || "",
         description: medInfo.descricao || "",
-        requiresPrescription: medInfo.requer_prescricao || false,
+        // Prioriza a verificação por texto, mas mantém o campo original como fallback
+        requiresPrescription: isRestricted || medInfo.requer_prescricao || false,
         viewingCount: 0,
         interests: 0,
       };
@@ -51,11 +65,12 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
     | "USF"
     | "Farmácia Popular"
     | "UCAF" = "UBS";
-  if (unit.name.includes("UCAF")) type = "UCAF";
-  else if (unit.name.includes("UBS")) type = "UBS";
-  else if (unit.name.includes("USF")) type = "USF";
-  else if (unit.name.includes("UPA")) type = "UPA";
-  else if (unit.name.includes("Farmácia")) type = "Farmácia";
+    
+  if (unit.name && unit.name.includes("UCAF")) type = "UCAF";
+  else if (unit.name && unit.name.includes("UBS")) type = "UBS";
+  else if (unit.name && unit.name.includes("USF")) type = "USF";
+  else if (unit.name && unit.name.includes("UPA")) type = "UPA";
+  else if (unit.name && unit.name.includes("Farmácia")) type = "Farmácia";
 
   let unitStatus: "healthy" | "normal" | "attention" | "urgent" = "normal";
   const totalMedicamentos = medications.length;
@@ -98,7 +113,7 @@ export const healthUnits: HealthUnit[] = unidades.map((unit, index) => {
     status: unitStatus,
     workingHours: `${unit.aberto} - ${unit.fechado}`,
     phone: unit.tel,
-    manager: "Dr. João Silva",
+    manager: "Dr. João Silva", // Pode virar dinâmico futuramente
     services: ["Consultas", "Vacinação", "Curativos"],
     medications: medications.filter((m) => m !== null) as Exclude<
       (typeof medications)[0],
