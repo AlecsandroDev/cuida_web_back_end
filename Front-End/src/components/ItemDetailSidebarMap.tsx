@@ -109,14 +109,14 @@ export default function ItemDetailSidebarMap({ medication, onBack, selectedUnit 
     return (
         <div>
              <div className="relative ml-7 mt-7">
-                <h2 className="text-lg md:text-2xl font-bold text-foreground mb-2">{selectedUnit.name}</h2>
+                <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1">{selectedUnit.name}</h2>
                 <div className="flex items-center gap-1 md:gap-2 flex-wrap">
                     <Badge variant="outline" className="text-xs border-primary/30 bg-primary/5">
                         <Eye className="w-3 h-3 mr-1" />
                         1 visualizando este medicamento
                     </Badge>
                 </div>
-                <Button onClick={onBack} variant="ghost" size="sm" className="absolute top-1 right-4 gap-2">
+                <Button onClick={onBack} variant="ghost" size="sm" className="absolute top-2 right-4 gap-2">
                     <ArrowLeft className="h-4 w-4" />
                     Voltar
                 </Button>
