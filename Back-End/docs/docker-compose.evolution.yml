@@ -1,0 +1,52 @@
+# Evolution API local para testes.
+#   docker compose -f docs/docker-compose.evolution.yml up -d
+# Confira a tag mais recente no Docker Hub antes de usar.
+services:
+  # ---- Opção A: v1 (payload textMessage — o formato que o CUIDA usa hoje) ----
+  evolution-v1:
+    image: atendai/evolution-api:v1.8.2
+    container_name: evolution_v1
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_URL: http://localhost:8080
+      AUTHENTICATION_TYPE: apikey
+      AUTHENTICATION_API_KEY: cuida-api-sla-2026
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+      LOG_LEVEL: ERROR,WARN,INFO
+    volumes:
+      - evolution_instances:/evolution/instances
+    profiles: ["v1"]
+
+  # ---- Opção B: v2 (exige Postgres; use EVOLUTION_API_VERSION=v2 no .env) ----
+  evolution-v2:
+    image: evoapicloud/evolution-api:latest
+    container_name: evolution_v2
+    restart: unless-stopped
+    depends_on: [evolution-db]
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_URL: http://localhost:8080
+      AUTHENTICATION_API_KEY: cuida-api-sla-2026
+      DATABASE_ENABLED: "true"
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://evolution:evolution@evolution-db:5432/evolution?schema=public
+      CACHE_REDIS_ENABLED: "false"
+      CACHE_LOCAL_ENABLED: "true"
+    profiles: ["v2"]
+
+  evolution-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution
+      POSTGRES_DB: evolution
+    volumes:
+      - evolution_pg:/var/lib/postgresql/data
+    profiles: ["v2"]
+
+volumes:
+  evolution_instances:
+  evolution_pg:

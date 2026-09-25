@@ -1,5 +1,7 @@
 // server.js
-require('dotenv').config({ path: __dirname + '.env' });
+const path = require('path');
+// .env fica na pasta Back-End (um nível acima de src/)
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const app = require("./app");
 

@@ -1,0 +1,117 @@
+====================================================================
+           ROTEIRO DE DEMONSTRAÇÃO PRÁTICA - BACKEND CUIDA
+           FLUXO DE NOTIFICAÇÃO VIA WHATSAPP (MODO SIMULAÇÃO)
+====================================================================
+
+OBJETIVO DA APRESENTAÇÃO:
+Demonstrar a integração do backend com o banco de dados (Supabase),
+a higienização dos telefones, o processamento em lote pela fila
+anti-banimento e a montagem das mensagens de aviso de estoque aos
+cidadãos que favoritaram o medicamento.
+
+--------------------------------------------------------------------
+PASSO 0: CHECAGEM ANTES DA APRESENTAÇÃO (não mostrar)
+--------------------------------------------------------------------
+[ ] .env com WHATSAPP_MOCK=true, WHATSAPP_HORA_INICIO=0,
+    WHATSAPP_HORA_FIM=24 e intervalo de 2000 a 4000 ms.
+[ ] SUPABASE_KEY = chave service_role COMPLETA (começa com "eyJhbGci").
+[ ] No Supabase existem 2 ou 3 favoritos de TESTE com
+    id_medicamento = 2 e id_unidade = 4, com telefones em formatos
+    diferentes (ex.: "(14) 99876-5432" e "14 9876-5432").
+    Use cidadãos fictícios: o terminal mostra nome e medicamento.
+[ ] Rodar o PASSO 3 uma vez e conferir que NÃO volta
+    "Nenhum cidadão cadastrado".
+
+--------------------------------------------------------------------
+PASSO 1: INICIAR O SERVIDOR
+--------------------------------------------------------------------
+No terminal 1 (pasta Back-End):
+
+cd C:\Users\sophia.sigolini\Music\cuida\cuida_web_back_end\Back-End
+npm run dev
+
+-> O que explicar:
+   "O backend sobe na porta 3000 conectado ao Supabase. Com
+   WHATSAPP_MOCK=true, só a chamada HTTP para a Evolution API é
+   simulada. Busca no banco, higienização do telefone, fila,
+   intervalos e montagem da mensagem são o código real que roda
+   em produção."
+
+--------------------------------------------------------------------
+PASSO 2: CONSULTAR O STATUS DO SERVIÇO DE NOTIFICAÇÃO
+--------------------------------------------------------------------
+No terminal 2 (PowerShell):
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/whatsapp/status" -Method GET | ConvertTo-Json
+
+-> O que mostrar:
+   - estado: "open"
+   - modo_simulacao: true
+
+--------------------------------------------------------------------
+PASSO 3: HIGIENIZAÇÃO DO TELEFONE
+--------------------------------------------------------------------
+No terminal 2:
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/whatsapp/validar-numero" -Method POST -ContentType "application/json" -Body '{"numero": "(14) 9876-5432"}' | ConvertTo-Json -Depth 5
+
+-> O que mostrar:
+   - numero: "5514998765432"  (DDI 55 + DDD + 9º dígito adicionado)
+   - variantes: com e sem o 9 (contas antigas do WhatsApp ainda
+     estão registradas sem o 9; a Evolution confirma qual existe)
+   - Opcional: mostrar um inválido, ex. '{"numero": "(20) 99876-5432"}'
+     -> DDD_INVALIDO
+
+--------------------------------------------------------------------
+PASSO 4: DISPARAR NOTIFICAÇÃO DE DISPONIBILIDADE (FLUXO PRINCIPAL)
+--------------------------------------------------------------------
+No terminal 2:
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/whatsapp/notificar-disponibilidade" -Method POST -ContentType "application/json" -Body '{"id_medicamento": 2, "id_unidade": 4, "aguardar": true}' | ConvertTo-Json -Depth 10
+
+-> O que explicar:
+   1. O backend recebe o ID do medicamento e da UBS onde chegou o lote.
+   2. O Model 'Favorito' busca no Supabase todos os cidadãos interessados.
+   3. É criado um lote (id único) e cada cidadão é processado em
+      sequência, um por vez, com espera aleatória entre os envios
+      (anti-banimento). Em produção a espera é de 8 a 20 s; na demo
+      foi reduzida para 2 a 4 s.
+   4. "aguardar": true segura a resposta até o fim, para a demo. Em
+      produção a rota responde na hora (202) com o id do lote, e o
+      andamento é consultado em GET /api/whatsapp/notificacoes/{id}.
+
+-> O que mostrar no Terminal 1 (Node), em cada quadro
+   [MOCK DISPARO WHATSAPP]:
+   - Destino mascarado (ex.: 5514*****5432), por causa da LGPD
+   - Tempo de "digitando..." simulado
+   - Texto personalizado (nome, medicamento e UBS). Apontar que a
+     saudação e as frases MUDAM de um cidadão para outro: o lote
+     não sai com mensagens idênticas (anti-banimento)
+   - ID da mensagem
+   - A pausa de 2 a 4 s entre um quadro e o seguinte
+   - No final, a linha "notificacao.lote_concluido" com o resumo
+
+-> O que mostrar no Terminal 2 (resposta):
+   - lote.itens: status por cidadão (enviado / ignorado / falhou)
+   - lote.resumo: totais e falhas por código
+
+--------------------------------------------------------------------
+PASSO 5: PROVA DO TRATAMENTO DE ERROS (TESTES AUTOMÁTICOS)
+--------------------------------------------------------------------
+Num terceiro terminal (pasta Back-End), com o servidor ainda rodando:
+
+npm test
+
+-> O que explicar:
+   "O modo simulação sempre responde sucesso. Para provar o
+   tratamento de erros, estes 27 testes rodam contra uma Evolution
+   API falsa e cobrem: número sem WhatsApp, ajuste do 9º dígito,
+   telefone inválido ou duplicado, instância caindo no meio do lote
+   (o WhatsApp é interrompido e os e-mails continuam), apikey errada
+   e API fora do ar."
+
+-> O que mostrar:
+   # tests 27
+   # pass 27
+   # fail 0
+====================================================================
