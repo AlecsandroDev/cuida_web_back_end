@@ -33,6 +33,30 @@ class Favorito {
     return data;
   }
 
+  /**
+   * Retorna todos os clientes que favoritaram um medicamento em uma unidade,
+   * com os dados de contato necessários para o disparo (WhatsApp / e-mail).
+   * Usado pela rotina de alerta de reposição de estoque.
+   */
+  static async buscarInteressados(idMedicamento, idUnidade) {
+    const { data, error } = await supabase
+      .from("favorito")
+      .select(`
+        id_favorito,
+        id_cliente,
+        id_unidade,
+        id_medicamento,
+        cliente:id_cliente (nome_completo, telefone, email),
+        medicamento:id_medicamento (nome, principio_ativo),
+        unidade:id_unidade (nome_unidade, endereco)
+      `)
+      .eq("id_medicamento", idMedicamento)
+      .eq("id_unidade", idUnidade);
+
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
   static async remover(idFavorito) {
     const { error } = await supabase
       .from("favorito")

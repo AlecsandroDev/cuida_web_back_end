@@ -10,6 +10,7 @@ const estoqueRoutes     = require("./routes/estoqueRoutes");
 // Novas importações
 const favoritoRoutes    = require("./routes/favoritoRoutes");
 const pedidoRoutes      = require("./routes/pedidoRoutes");
+const whatsappRoutes    = require("./routes/whatsappRoutes");
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use("/api/estoques", estoqueRoutes);
 // Novas rotas
 app.use("/api/favoritos", favoritoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
 
 module.exports = app;

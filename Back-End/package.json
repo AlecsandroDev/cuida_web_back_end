@@ -5,10 +5,13 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "test": "node --test",
+    "testar:whatsapp": "node scripts/testar-whatsapp.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.76.1",
+    "axios": "^1.20.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -16,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "node-localstorage": "^3.0.5",
+    "nodemailer": "^10.0.10",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
